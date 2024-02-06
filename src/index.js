@@ -1,6 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
+const vision = require('./vision');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
@@ -12,6 +13,25 @@ app.use(cors());
 app.use('*', (req, res, next) => {
   res.header('Content-Type', 'application/json; charset=utf-8');
   next();
+});
+
+app.get('/vision', (req, res, next) => {
+  const url = (req.query.url || '').toLowerCase();
+  vision.fetch(url).then((result) => {
+    if (result && result.trim().startsWith('{')) {
+      const data = JSON.parse(result);
+      res
+        .type('application/json')
+        .status(200)
+        .send(JSON.stringify(data, null, 2).toString('utf8'));
+    } else {
+      console.error('[ERROR] Could not fetch URL:', result);
+      res
+        .type('application/json')
+        .status(200)
+        .send(JSON.stringify(result, null, 2).toString('utf8'));
+    }
+  });
 });
 
 app.get('*', (req, res) => {

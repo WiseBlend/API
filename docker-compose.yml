@@ -1,0 +1,49 @@
+version: "3.5"
+
+services:
+  wiseblend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wiseblend/webapp:dev
+    container_name: wiseblend
+    restart: always
+    # user: ${UID}:${GID}
+    # command:
+    # privileged: false
+    # depends_on:
+    hostname: wiseblend
+    # network_mode: host
+    networks:
+      - traefik
+    # ports:
+    # expose:
+    # dns:
+    #   - ${NETWORK_DNS_IP}
+    env_file:
+      - ./env-global.env
+    # environment:
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_network
+      - traefik.http.routers.wiseblend.entrypoints=websecure
+      - traefik.http.routers.wiseblend.tls.certresolver=letsencrypt
+      - traefik.http.routers.wiseblend.rule=Host(`api.wiseblend.ai`)
+      - traefik.http.routers.wiseblend.service=wiseblend-service
+      - traefik.http.services.wiseblend-service.loadbalancer.server.port=3001
+      - traefik.http.routers.wiseblend.middlewares=compress
+      # redirect www to nonwww
+      # - traefik.http.routers.www-to-non-www.entrypoints=websecure
+      # - traefik.http.routers.www-to-non-www.tls.certresolver=letsencrypt
+      # - traefik.http.routers.www-to-non-www.rule=Host(`api.wiseblend.ai`)
+      # - traefik.http.routers.www-to-non-www.service=noop@internal
+      # - traefik.http.routers.www-to-non-www.middlewares=www-redirectregex
+      # - traefik.http.middlewares.www-redirectregex.redirectregex.regex=^https://api.wiseblend.ai(.*)
+      # - traefik.http.middlewares.www-redirectregex.redirectregex.replacement=https://api.wiseblend.ai$${1}
+
+networks:
+  traefik:
+    external:
+      name: traefik_network

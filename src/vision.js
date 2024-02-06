@@ -1,5 +1,6 @@
 const fs = require('fs');
-const puppeteer = require('puppeteer');
+const chromium = require('chrome-aws-lambda');
+// const puppeteer = require('puppeteer');
 const {OpenAI} = require('openai');
 const {
   HTTP_HEADERS,
@@ -27,11 +28,12 @@ const screenshot_ = (
   /** @type {string} */ url,
   /** @type {Function} */ callback
 ) => {
-  puppeteer
+  chromium.puppeteer
     .launch({
       headless: 'new',
       defaultViewport: DEFAULT_VIEWPORT,
       args: ['--no-sandbox'],
+      // executablePath: await chromium.executablePath,
     })
     .then(async (browser) => {
       const page = await browser.newPage();

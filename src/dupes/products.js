@@ -154,11 +154,16 @@ const findProductSmartSwaps_ = async (
     }
   }
 
-  if (typeof result === 'string') {
-    result = JSON.parse(result); // For backward compatibility.
+  // For backward compatibility.
+  if (result) {
+    if (typeof result === 'string') {
+      result = JSON.parse(result);
+    } else if (result.message && typeof result.message === 'string') {
+      result = JSON.parse(result.message);
+    }
   }
 
-  return result;
+  return result || [];
 };
 
 const askAssistant_ = async (/** @type {string} */ message) => {

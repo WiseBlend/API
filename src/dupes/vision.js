@@ -2,10 +2,28 @@ const vision = require('../vision');
 const storage = require('../storage');
 
 const search = async (/** @type {string} */ url) => {
+  const run = async (/** @type {number} */ attempts) => {
+    let product = await search_(url);
+    if (!product && attempts > 0) {
+      console.debug('[DEBUG] Could not get product. Retrying...');
+      product = await run(attempts - 1);
+    }
+    return product;
+  };
+  return await run(3);
+};
+
+const search_ = async (/** @type {string} */ url) => {
   let product = null;
   if (url) {
-    const cached = await storage.getItem(url);
+    const key = `wiseblend-${url}`;
+    const cached = await storage.getItem(key);
     product = cached && JSON.parse(cached);
+
+    if (product && !validate_(product)) {
+      // In cases where invalid product data was previously stored.
+      product = null;
+    }
 
     if (!product) {
       try {
@@ -13,6 +31,10 @@ const search = async (/** @type {string} */ url) => {
         if (result && result.trim().startsWith('{')) {
           try {
             product = JSON.parse(result);
+
+            product.product_name = product.product_name || product.productName;
+            product.unit_size = product.unit_size || product.unitSize;
+
             product.price = formatPrice_(product.price);
             product.unit_size = formatUnitSize_(product.unit_size);
             if (product.price && product.unit_size) {
@@ -20,7 +42,6 @@ const search = async (/** @type {string} */ url) => {
                 (product.price / parseFloat(product.unit_size)).toFixed(2)
               );
             }
-            await storage.setItem(url, JSON.stringify(product));
           } catch (error) {
             console.error('[ERROR] Could not parse JSON:', error);
           }
@@ -32,9 +53,31 @@ const search = async (/** @type {string} */ url) => {
       }
     }
   } else {
-    console.error('[ERROR] Invalidh URL:', url);
+    console.error('[ERROR] Invalid URL:', url);
   }
 
+  if (validate_(product)) {
+    await storage.setItem(key, JSON.stringify(product));
+    return product;
+  }
+
+  return null;
+};
+
+const validate_ = (product) => {
+  if (product) {
+    const name = product.product_name && product.product_name.toLowerCase();
+    if (!name || name === 'not available') {
+      console.error('[ERROR] Invalid or empty product name:', product);
+      return null;
+    }
+    if (isNaN(product.price)) {
+      console.error('[ERROR] Invalid or empty product price:', product);
+      return null;
+    }
+  }
+
+  // console.debug('[DEBUG] Valid product:', product);
   return product;
 };
 
@@ -65,6 +108,7 @@ const formatUnitSize_ = (/** @type {string|number} */ size) => {
     }
     return parseFloat(value).toFixed(2) + ' ' + units;
   }
+
   return null;
 };
 

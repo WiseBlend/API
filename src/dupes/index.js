@@ -7,12 +7,20 @@ const search = async (
 ) => {
   const url = (req.query.url || '').toLowerCase();
   const product = await vision.search(url);
-  const dupes = await products.search(product.product_name);
-  const data = {product, dupes: format_(dupes)};
-  res
-    .type('application/json')
-    .status(200)
-    .send(JSON.stringify(data, null, 2).toString('utf8'));
+  if (product) {
+    const dupes = await products.search(product.product_name);
+    const data = {product, dupes: format_(dupes)};
+    res
+      .type('application/json')
+      .status(200)
+      .send(JSON.stringify(data, null, 2).toString('utf8'));
+  } else {
+    const data = {error: 'The product could not be found at the specified URL'};
+    res
+      .type('application/json')
+      .status(400)
+      .send(JSON.stringify(data, null, 2).toString('utf8'));
+  }
 };
 
 const format_ = (dupes) =>

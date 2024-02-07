@@ -52,13 +52,13 @@ const search_ = async (/** @type {string} */ url) => {
         console.error('[ERROR] Could not fetch URL:', error);
       }
     }
+
+    if (validate_(product)) {
+      await storage.setItem(key, JSON.stringify(product));
+      return product;
+    }
   } else {
     console.error('[ERROR] Invalid URL:', url);
-  }
-
-  if (validate_(product)) {
-    await storage.setItem(key, JSON.stringify(product));
-    return product;
   }
 
   return null;

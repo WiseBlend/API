@@ -1,6 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
+const uploads = require('express-fileupload');
 require('dotenv').config({path: `.env.${process.env.NODE_ENV}`});
 const dupes = require('./dupes/');
 
@@ -8,6 +9,7 @@ const PORT = process.env.PORT || 3001;
 
 const app = express();
 app.disable('x-powered-by');
+app.use(uploads({limits: {fileSize: 1e7}, abortOnLimit: true})); // ~10MB
 app.use(compression({threshold: 0}));
 app.use(cors());
 app.use('*', (req, res, next) => {
@@ -16,5 +18,6 @@ app.use('*', (req, res, next) => {
 });
 
 app.get('/dupes/search', async (req, res) => await dupes.search(req, res));
+app.post('/dupes/search', async (req, res) => await dupes.search(req, res));
 app.get('*', (req, res) => res.send('{"error": "Bad Request"}'));
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));

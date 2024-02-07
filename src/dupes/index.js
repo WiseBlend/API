@@ -5,8 +5,12 @@ const search = async (
   /** @type {Request} */ req,
   /** @type {Response} */ res
 ) => {
-  const url = (req.query.url || '').toLowerCase();
-  const product = await vision.search(url);
+  const params = {
+    url: (req.query.url || '').toLowerCase(),
+    image: req.files && req.files.image,
+  };
+
+  const product = await vision.search(params);
   if (product) {
     const dupes = await products.search(product.product_name);
     const data = {product, dupes: format_(dupes)};

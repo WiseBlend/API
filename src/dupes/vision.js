@@ -1,9 +1,9 @@
 const vision = require('../vision');
 const storage = require('../storage');
 
-const search = async (/** @type {string} */ url) => {
+const search = async (params) => {
   const run = async (/** @type {number} */ attempts) => {
-    let product = await search_(url);
+    let product = await search_(params);
     if (!product && attempts > 0) {
       console.debug('[DEBUG] Could not get product. Retrying...');
       product = await run(attempts - 1);
@@ -13,55 +13,70 @@ const search = async (/** @type {string} */ url) => {
   return await run(3);
 };
 
-const search_ = async (/** @type {string} */ url) => {
+const search_ = async (params) => {
+  const {url, image} = params;
+  let key;
+
   let product = null;
   if (url) {
-    const key = `wiseblend-${url}`;
-    const cached = await storage.getItem(key);
-    product = cached && JSON.parse(cached);
-
-    if (product && !validate_(product)) {
-      // In cases where invalid product data was previously stored.
-      product = null;
-    }
+    key = `wiseblend-${url}`;
+    product = await getCached_(key);
 
     if (!product) {
       try {
-        const result = await vision.fetch(url);
-        if (result && result.trim().startsWith('{')) {
-          try {
-            product = JSON.parse(result);
-
-            product.product_name = product.product_name || product.productName;
-            product.unit_size = product.unit_size || product.unitSize;
-
-            product.price = formatPrice_(product.price);
-            product.unit_size = formatUnitSize_(product.unit_size);
-            if (product.price && product.unit_size) {
-              product.unit_price = parseFloat(
-                (product.price / parseFloat(product.unit_size)).toFixed(2)
-              );
-            }
-          } catch (error) {
-            console.error('[ERROR] Could not parse JSON:', error);
-          }
-        } else {
-          console.error('[ERROR] Invalid JSON format:', result);
-        }
+        const result = await vision.fetch({url});
+        product = parse_(result);
       } catch (error) {
         console.error('[ERROR] Could not fetch URL:', error);
       }
     }
+  } else if (image) {
+    key = `wiseblend-${image.md5}`;
+    product = await getCached_(key);
 
-    if (validate_(product)) {
-      await storage.setItem(key, JSON.stringify(product));
-      return product;
+    if (!product) {
+      try {
+        const result = await vision.fetch({image});
+        product = parse_(result);
+      } catch (error) {
+        console.error('[ERROR] Could not fetch image:', error);
+      }
     }
   } else {
-    console.error('[ERROR] Invalid URL:', url);
+    console.error('[ERROR] Invalid params:', params);
+  }
+
+  if (validate_(product)) {
+    await storage.setItem(key, JSON.stringify(product));
+    return product;
   }
 
   return null;
+};
+
+const parse_ = (result) => {
+  let product = null;
+  if (result && result.trim().startsWith('{')) {
+    try {
+      product = JSON.parse(result);
+
+      product.product_name = product.product_name || product.productName;
+      product.unit_size = product.unit_size || product.unitSize;
+
+      product.price = formatPrice_(product.price);
+      product.unit_size = formatUnitSize_(product.unit_size);
+      if (product.price && product.unit_size) {
+        product.unit_price = parseFloat(
+          (product.price / parseFloat(product.unit_size)).toFixed(2)
+        );
+      }
+    } catch (error) {
+      console.error('[ERROR] Could not parse JSON:', error);
+    }
+  } else {
+    console.error('[ERROR] Invalid JSON format:', result);
+  }
+  return product;
 };
 
 const validate_ = (product) => {
@@ -110,6 +125,18 @@ const formatUnitSize_ = (/** @type {string|number} */ size) => {
   }
 
   return null;
+};
+
+const getCached_ = async (/** @type {string} */ key) => {
+  const cached = await storage.getItem(key);
+  let product = cached && JSON.parse(cached);
+
+  if (product && !validate_(product)) {
+    // In cases where invalid product data was previously stored.
+    product = null;
+  }
+
+  return product;
 };
 
 module.exports = {search};

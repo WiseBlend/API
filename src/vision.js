@@ -17,10 +17,19 @@ const SCREENSHOT_PATH = __filename + '.' + SCREENSHOT_RAND + '.jpg';
 const SCREENSHOT_TYPE = 'data:image/jpg;base64,';
 const DEFAULT_VIEWPORT = {width: 1920, height: 1080};
 
-const fetch = (/** @type {string} */ url) => {
-  return new Promise((resolve, reject) => {
-    screenshot_(url, () => vision_(resolve, reject));
-  });
+const fetch = (params) => {
+  const {url, image} = params;
+  if (url && /^https?:\/\//.test(url)) {
+    return new Promise((resolve, reject) => {
+      screenshot_(url, () => vision_(resolve, reject));
+    });
+  } else if (image && /^image/.test(image.mimetype)) {
+    return new Promise((resolve, reject) => {
+      image.mv(SCREENSHOT_PATH, (err) => vision_(resolve, reject));
+    });
+  } else {
+    return null;
+  }
 };
 
 const screenshot_ = (

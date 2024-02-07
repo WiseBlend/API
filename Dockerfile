@@ -14,7 +14,7 @@ RUN npm ci --only=production
 
 # Bundle app source
 COPY . .
-RUN npm run build
+# RUN npm run build
 
 EXPOSE 4000
 CMD ["npm", "start"]

@@ -1,8 +1,8 @@
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
-const vision = require('./vision');
-require('dotenv').config();
+require('dotenv').config({path: `.env.${process.env.NODE_ENV}`});
+const dupes = require('./dupes/');
 
 const PORT = process.env.PORT || 3001;
 
@@ -15,27 +15,6 @@ app.use('*', (req, res, next) => {
   next();
 });
 
-app.get('/vision', (req, res, next) => {
-  const url = (req.query.url || '').toLowerCase();
-  vision.fetch(url).then((result) => {
-    if (result && result.trim().startsWith('{')) {
-      const data = JSON.parse(result);
-      res
-        .type('application/json')
-        .status(200)
-        .send(JSON.stringify(data, null, 2).toString('utf8'));
-    } else {
-      console.error('[ERROR] Could not fetch URL:', result);
-      res
-        .type('application/json')
-        .status(200)
-        .send(JSON.stringify(result, null, 2).toString('utf8'));
-    }
-  });
-});
-
-app.get('*', (req, res) => {
-  res.send('{"error": "Bad Request"}');
-});
-
+app.get('/dupes/search', async (req, res) => await dupes.search(req, res));
+app.get('*', (req, res) => res.send('{"error": "Bad Request"}'));
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));

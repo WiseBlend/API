@@ -17,7 +17,8 @@
     "url": "https://github.com/WiseBlend/API/issues"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "NODE_ENV=production node src/index.js",
+    "dev": "NODE_ENV=development node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "engines": {

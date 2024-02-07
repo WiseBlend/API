@@ -1,4 +1,4 @@
-version: "3.5"
+version: '3.5'
 
 services:
   wiseblend:
@@ -21,7 +21,7 @@ services:
     # dns:
     #   - ${NETWORK_DNS_IP}
     env_file:
-      - ./env-global.env
+      - ./.env.production
     # environment:
     volumes:
       - /etc/localtime:/etc/localtime:ro

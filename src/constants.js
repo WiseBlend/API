@@ -1,6 +1,11 @@
 const OPENAI_API_ORG = 'org-3mWcXhfgu5TEfkZ5XNqj4uN9'; // process.env['OPENAI_API_ORG'] ||
 const OPENAI_API_KEY = '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'; // process.env['OPENAI_API_KEY'] ||
 
+const SHEET_ID = '19dW9H-WGgy6ar51UH32dQrlJrQWX_0Wb00niW154gdY';
+// "1odhMCRznRTtdCHE8FUpbodFpFmVo8_dO33-xP9mrc-U";
+const SHEET_GID = 2110276714; //1004750025;
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}`;
+
 const USER_AGENTS = [
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
@@ -43,6 +48,7 @@ const HTTP_HEADERS = {
 module.exports = {
   OPENAI_API_ORG,
   OPENAI_API_KEY,
+  SHEET_URL,
   USER_AGENTS,
   USER_AGENT,
   HTTP_REFERERS,

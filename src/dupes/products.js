@@ -1,11 +1,6 @@
 const {OpenAI} = require('openai');
 
-const {
-  USER_AGENT,
-  OPENAI_API_ORG,
-  OPENAI_API_KEY,
-  SHEET_URL,
-} = require('../constants');
+const {USER_AGENT, SHEET_URL} = require('../constants');
 const storage = require('../storage');
 
 const search = async (/** @type {string}  */ target) => {
@@ -169,8 +164,8 @@ const findProductSmartSwaps_ = async (
 const askAssistant_ = async (/** @type {string} */ message) => {
   console.debug('[DEBUG] Request message:', message);
   const openai = new OpenAI({
-    organization: OPENAI_API_ORG,
-    apiKey: OPENAI_API_KEY,
+    organization: process.env.OPENAI_API_ORG,
+    apiKey: process.env.OPENAI_API_KEY,
   });
 
   try {

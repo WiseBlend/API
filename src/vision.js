@@ -1,12 +1,7 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 const {OpenAI} = require('openai');
-const {
-  HTTP_HEADERS,
-  USER_AGENT,
-  OPENAI_API_ORG,
-  OPENAI_API_KEY,
-} = require('./constants');
+const {HTTP_HEADERS, USER_AGENT} = require('./constants');
 
 const OPENAI_PROMPT =
   'What is the product name, price and unit size of the product in the screenshot provided? ' +
@@ -76,8 +71,8 @@ const vision_ = (
   ];
 
   const openai = new OpenAI({
-    organization: OPENAI_API_ORG,
-    apiKey: OPENAI_API_KEY,
+    organization: process.env.OPENAI_API_ORG,
+    apiKey: process.env.OPENAI_API_KEY,
   });
 
   openai.chat.completions

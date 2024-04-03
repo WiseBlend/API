@@ -1,6 +1,3 @@
-const OPENAI_API_ORG = process.env['OPENAI_API_ORG'];
-const OPENAI_API_KEY = process.env['OPENAI_API_KEY'];
-
 const SHEET_ID = '19dW9H-WGgy6ar51UH32dQrlJrQWX_0Wb00niW154gdY';
 // "1odhMCRznRTtdCHE8FUpbodFpFmVo8_dO33-xP9mrc-U";
 const SHEET_GID = 2110276714; //1004750025;
@@ -47,8 +44,6 @@ const HTTP_HEADERS = {
 };
 
 module.exports = {
-  OPENAI_API_ORG,
-  OPENAI_API_KEY,
   SHEET_URL,
   USER_AGENTS,
   USER_AGENT,

@@ -70,6 +70,9 @@ const vision_ = (
     {type: 'image_url', image_url: {url: image}},
   ];
 
+  console.log('ORG:', process.env.OPENAI_API_ORG.slice(0,5), '...', process.env.OPENAI_API_ORG.slice(-5));
+  console.log('KEY:', process.env.OPENAI_API_KEY.slice(0,5), '...', process.env.OPENAI_API_KEY.slice(-5));
+
   const openai = new OpenAI({
     organization: process.env.OPENAI_API_ORG,
     apiKey: process.env.OPENAI_API_KEY,
